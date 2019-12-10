@@ -1,0 +1,28 @@
+{
+	"filename": "20180607-111947_L000.txt",
+	"date": "20191129-000000",
+	"dateformat": "yyyyMMdd-HHmmSS",
+	"description": "-",
+	"datafields": {
+		"timestamp": {
+			"type": "uint32",
+			"fields": 1,
+			"Unit": "mS"
+		},
+		"accel": {
+			"type": "int16",
+			"fields": 24,
+			"Unit": "m/s^2"
+		},
+		"gyro": {
+			"type": "int16",
+			"fields": 24,
+			"Unit": "deg/s"
+		},
+		"magn": {
+			"type": "int16",
+			"fields": 24,
+			"Unit": "uT"
+		}
+	}
+}
