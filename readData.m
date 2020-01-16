@@ -1,10 +1,10 @@
 %% read_data
 % Read data and converts data saved in a hexadecimal format
-function [data, split, struct] = readData( fileName )
+function [data, split, struct] = readData( dataFile, headerFile )
 tic
 
 % Import data from file
-fileData_full = fileread( [fileName, '.txt'] );
+fileData_full = fileread( dataFile );
 fileData_full = strsplit(fileData_full, {'-', '\n'});
 fileData_full = reshape(fileData_full(1:end-1), 8, [])';
 
@@ -35,21 +35,27 @@ clear fileData dim strPairs
 
 %% Typecast all data back to original form
 % Read JSON header file to determine which bytes form each element
-fileName = 'test-data';
-[singleArray, uint32Array, int16Array, struct] = readHeader( [fileName, '.json'] );
+[singleArray, int32Array, uint32Array, int16Array, uint16Array, int8Array, uint8Array, struct] = readHeader( headerFile );
 
+[int32s] = typecastBytes( bytes( :, int32Array.Bytes ), 'int32' );
 [uint32s] = typecastBytes( bytes( :, uint32Array.Bytes ), 'uint32' );
 [singles] = typecastBytes( bytes( :, singleArray.Bytes ), 'single' );
 [int16s]  = typecastBytes( bytes( :, int16Array.Bytes  ), 'int16'  );
-
+[uint16s]  = typecastBytes( bytes( :, uint16Array.Bytes  ), 'uint16'  );
+[int8s]  = typecastBytes( bytes( :, int8Array.Bytes  ), 'int8'  );
+[uint8s]  = typecastBytes( bytes( :, uint8Array.Bytes  ), 'uint8'  );
 
 % Combine into single matrix
 data = zeros( length(bytes), struct.numElements );
+data( :, int32Array.Elements ) = double( int32s );
 data( :, uint32Array.Elements ) = double( uint32s );
 data( :, singleArray.Elements ) = double( singles );
 data( :, int16Array.Elements ) = double( int16s );
+data( :, uint16Array.Elements ) = double( uint16s );
+data( :, int8Array.Elements ) = double( int8s );
+data( :, uint8Array.Elements ) = double( uint8s );
 
-clear fileName bytes int16Array singleArray uint32Array singles int16s uint32s
+clear fileName bytes uint16Array int16Array singleArray uint32Array singles uint16s int16s uint32s int32s uint8s int8s
 
 
 %% Sort data into seperate vectors for each data field
