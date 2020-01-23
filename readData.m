@@ -1,7 +1,29 @@
-%% read_data
-% Read data and converts data saved in a hexadecimal format
-function [data, split, struct] = readData( dataFile, headerFile )
+%{
+% Function name - Read data and converts data saved in a hexadecimal format
+% Long description
+%
+% Inputs: 
+%   var1 - description
+%
+% Outputs:
+%   rtn1 - description
+%
+% Other m-files required: 
+% Subfunctions: 
+% MAT-files required: 
+%
+% See also: fcn2
+%
+% Author: Freddie Sherratt
+% University of Bath
+% email: F.W.Sherratt@bath.ac.uk
+% Website: fsherratt.dev
+% Sep 2018; Last revision: 22-Jan-2020
+%}
+function [data, split] = readData( dataFile, headerStruct )
 tic
+
+fprintf( "Opening file: %s\n", reduceTextLength(dataFile, 66) );
 
 % Import data from file
 fileData_full = fileread( dataFile );
@@ -30,40 +52,33 @@ strPairs = reshape( strPairs, dim(1) * dim(2), 2 );
 bytes = hex2dec( strPairs );
 bytes = uint8( reshape( bytes, dim(1), dim(2) ) );
 
-clear fileData dim strPairs
-
 
 %% Typecast all data back to original form
-% Read JSON header file to determine which bytes form each element
-[singleArray, int32Array, uint32Array, int16Array, uint16Array, int8Array, uint8Array, struct] = readHeader( headerFile );
-
-[int32s] = typecastBytes( bytes( :, int32Array.Bytes ), 'int32' );
-[uint32s] = typecastBytes( bytes( :, uint32Array.Bytes ), 'uint32' );
-[singles] = typecastBytes( bytes( :, singleArray.Bytes ), 'single' );
-[int16s]  = typecastBytes( bytes( :, int16Array.Bytes  ), 'int16'  );
-[uint16s]  = typecastBytes( bytes( :, uint16Array.Bytes  ), 'uint16'  );
-[int8s]  = typecastBytes( bytes( :, int8Array.Bytes  ), 'int8'  );
-[uint8s]  = typecastBytes( bytes( :, uint8Array.Bytes  ), 'uint8'  );
+[int32s] = typecastBytes( bytes( :, headerStruct.int32.Bytes ), 'int32' );
+[uint32s] = typecastBytes( bytes( :, headerStruct.uint32.Bytes ), 'uint32' );
+[singles] = typecastBytes( bytes( :, headerStruct.single.Bytes ), 'single' );
+[int16s]  = typecastBytes( bytes( :, headerStruct.int16.Bytes  ), 'int16'  );
+[uint16s]  = typecastBytes( bytes( :, headerStruct.uint16.Bytes  ), 'uint16'  );
+[int8s]  = typecastBytes( bytes( :, headerStruct.int8.Bytes  ), 'int8'  );
+[uint8s]  = typecastBytes( bytes( :, headerStruct.uint8.Bytes  ), 'uint8'  );
 
 % Combine into single matrix
-data = zeros( length(bytes), struct.numElements );
-data( :, int32Array.Elements ) = double( int32s );
-data( :, uint32Array.Elements ) = double( uint32s );
-data( :, singleArray.Elements ) = double( singles );
-data( :, int16Array.Elements ) = double( int16s );
-data( :, uint16Array.Elements ) = double( uint16s );
-data( :, int8Array.Elements ) = double( int8s );
-data( :, uint8Array.Elements ) = double( uint8s );
-
-clear fileName bytes uint16Array int16Array singleArray uint32Array singles uint16s int16s uint32s int32s uint8s int8s
+data = zeros( length(bytes), headerStruct.numElements );
+data( :, headerStruct.int32.Elements ) = double( int32s );
+data( :, headerStruct.uint32.Elements ) = double( uint32s );
+data( :, headerStruct.single.Elements ) = double( singles );
+data( :, headerStruct.int16.Elements ) = double( int16s );
+data( :, headerStruct.uint16.Elements ) = double( uint16s );
+data( :, headerStruct.int8.Elements ) = double( int8s );
+data( :, headerStruct.uint8.Elements ) = double( uint8s );
 
 
 %% Sort data into seperate vectors for each data field
 split = [];
-fields = fieldnames( struct.datafields );
+fields = fieldnames( headerStruct.datafields );
 
 for i = 1:numel(fields)
-    elements = struct.datafields.(fields{i}).elements;
+    elements = headerStruct.datafields.(fields{i}).elements;
     split.(fields{i}) = data( :, elements );
 end
 
@@ -71,13 +86,11 @@ split.androidTime = android_timestamp;
 split.device = device;
 split.characteristic = characteristic;
 
-clear fields i elements
-
 
 %% Print results
-fprintf( "Succesfully imported %d data rows\n", length(data) );
-fprintf( "In %0.2f seconds \n", toc );
-fprintf('----------------------------------------\n');
+fprintf( "Succesfully imported %d rows of data in %0.2f seconds\n", length(data), toc );
+fprintf('--------------------------------------------------------------------------------\n');
+
 
 end
 
@@ -92,6 +105,19 @@ function [data] = typecastBytes( bytes, type )
     data = typecast( bytes, type );
     data = reshape( data, [], dim(1) )';
 %     data = swapbytes( data );
+end
+
+function [name] = reduceTextLength(text, maxLength)
+    
+    if ( length(text) < maxLength )
+        name = text;
+    else
+        split = floor(maxLength/2)-2;
+        name = [text(1:split), '...', text(end-split:end)];
+        
+%         name = ['...', text(end-maxLength+4:end)];
+    end
+
 end
 
 

@@ -1,32 +1,48 @@
-function [singles, int32s, uint32s, int16s, uint16s, int8s, uint8s, struct] = readHeader(file)
+%{
+% Function name - Short description
+% Long description
+%
+% Inputs: 
+%   var1 - description
+%
+% Outputs:
+%   rtn1 - description
+%
+% Other m-files required: 
+% Subfunctions: 
+% MAT-files required: 
+%
+% See also: fcn2
+%
+% Author: Freddie Sherratt
+% University of Bath
+% email: F.W.Sherratt@bath.ac.uk
+% Website: fsherratt.dev
+% Sep 2018; Last revision: 22-Jan-2020
+%}
+function [struct] = readHeader(file)
 
     fileData = fileread( file );
     struct = jsondecode( fileData );
     
     
     % Print command window header
-    date = datetime(struct.date,'InputFormat',struct.dateformat, ...
-                                'Format','MMMM d, yyyy HH:mm:SS');
-    description = wrapText( struct.description, 40 ); 
-    
-    fprintf('----------------------------------------\n');
-    fprintf( "%s\n", pad(struct.filename) );
-    fprintf( "%s\n", date );
-    fprintf( "%s\n", description );
-    fprintf('----------------------------------------\n');
+    fprintf('--------------------------------------------------------------------------------\n');
+    fprintf('Loading header file\n');
+    fprintf( "%s\n", reduceTextLength(file, 66) );
+    fprintf('--------------------------------------------------------------------------------\n');
     
     fields = fieldnames( struct.datafields );
     fieldName = pad( fields, 25 );
     
-    
     % Generate data position vectors
-    int32s.Bytes   = []; int32s.Elements   = [];
-    uint32s.Bytes  = []; uint32s.Elements  = [];
-    int16s.Bytes   = []; int16s.Elements   = [];
-    uint16s.Bytes  = []; uint16s.Elements  = [];
-    int8s.Bytes    = []; int8s.Elements    = [];
-    uint8s.Bytes   = []; uint8s.Elements   = [];
-    singles.Bytes  = []; singles.Elements  = [];
+    struct.int32.Bytes   = []; struct.int32.Elements   = [];
+    struct.uint32.Bytes  = []; struct.uint32.Elements  = [];
+    struct.int16.Bytes   = []; struct.int16.Elements   = [];
+    struct.uint16.Bytes  = []; struct.uint16.Elements  = [];
+    struct.int8.Bytes    = []; struct.int8.Elements    = [];
+    struct.uint8.Bytes   = []; struct.uint8.Elements   = [];
+    struct.single.Bytes  = []; struct.single.Elements  = [];
     
     % Generate byte location vectors for each variable type and mark the
     % location of data elements pertaining to each field
@@ -45,38 +61,38 @@ function [singles, int32s, uint32s, int16s, uint16s, int8s, uint8s, struct] = re
         switch dataType
             case 'single'
                 byteCount = byteCount + 4 * numFields;
-                singles.Bytes = [singles.Bytes, arrayStart:byteCount-1];
-                singles.Elements = [singles.Elements, elementStart:(elementCount-1)];
+                struct.single.Bytes = [struct.single.Bytes, arrayStart:byteCount-1];
+                struct.single.Elements = [struct.single.Elements, elementStart:(elementCount-1)];
                 
             case 'int32'
                 byteCount = byteCount + 4 * numFields;
-                uint32s.Bytes = [int32s.Bytes, arrayStart:byteCount-1];
-                uint32s.Elements = [int32s.Elements, elementStart:(elementCount-1)];
+                struct.uint32.Bytes = [struct.int32.Bytes, arrayStart:byteCount-1];
+                struct.uint32.Elements = [struct.int32.Elements, elementStart:(elementCount-1)];
                 
             case 'uint32'
                 byteCount = byteCount + 4 * numFields;
-                uint32s.Bytes = [uint32s.Bytes, arrayStart:byteCount-1];
-                uint32s.Elements = [uint32s.Elements, elementStart:(elementCount-1)];
+                struct.uint32.Bytes = [struct.uint32.Bytes, arrayStart:byteCount-1];
+                struct.uint32.Elements = [struct.uint32.Elements, elementStart:(elementCount-1)];
 
             case 'int16'
                 byteCount = byteCount + 2 * numFields;
-                int16s.Bytes = [int16s.Bytes, arrayStart:byteCount-1];
-                int16s.Elements = [int16s.Elements, elementStart:(elementCount-1)];
+                struct.int16.Bytes = [struct.int16.Bytes, arrayStart:byteCount-1];
+                struct.int16.Elements = [struct.int16.Elements, elementStart:(elementCount-1)];
                 
             case 'uint16'
                  byteCount = byteCount + 2 * numFields;
-                 uint16s.Bytes = [uint16s.Bytes, arrayStart:byteCount-1];
-                 uint16s.Elements = [uint16s.Elements, elementStart:(elementCount-1)];
+                 struct.uint16.Bytes = [struct.uint16.Bytes, arrayStart:byteCount-1];
+                 struct.uint16.Elements = [struct.uint16.Elements, elementStart:(elementCount-1)];
                  
             case 'int8'
                 byteCount = byteCount + 1 * numFields;
-                int8s.Bytes = [int8s.Bytes, arrayStart:byteCount-1];
-                int8s.Elements = [int8s.Elements, elementStart:(elementCount-1)];
+                struct.int8.Bytes = [struct.int8.Bytes, arrayStart:byteCount-1];
+                struct.int8.Elements = [struct.int8.Elements, elementStart:(elementCount-1)];
                 
             case 'uint8'
                  byteCount = byteCount + 1 * numFields;
-                 uint8s.Bytes = [uint8s.Bytes, arrayStart:byteCount-1];
-                 uint8s.Elements = [uint8s.Elements, elementStart:(elementCount-1)];
+                 struct.uint8.Bytes = [struct.uint8.Bytes, arrayStart:byteCount-1];
+                 struct.uint8.Elements = [struct.uint8.Elements, elementStart:(elementCount-1)];
                 
         end
 
@@ -85,18 +101,20 @@ function [singles, int32s, uint32s, int16s, uint16s, int8s, uint8s, struct] = re
     
     struct.numElements = elementCount - 1;
     
-    fprintf('----------------------------------------\n');
+    fprintf('--------------------------------------------------------------------------------\n');
 end
 
-% Utility function to wrap text after x characters
-function [newStr] = wrapText( str, width )
-    newStr = [];
+function [name] = reduceTextLength(text, maxLength)
     
-    for i = 1:length(str)
-        if mod( i, width+1 ) == 0
-            newStr = [newStr, newline];
-        end
+    if ( length(text) < maxLength )
+        name = text;
+    else
+        split = floor(maxLength/2)-2;
+        name = [text(1:split), '...', text(end-split:end)];
         
-        newStr = [newStr, str(i)];
+%         name = ['...', text(end-maxLength+4:end)];
     end
+
 end
+
+% EOF
