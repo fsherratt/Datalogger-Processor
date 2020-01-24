@@ -1,0 +1,54 @@
+{
+	"filename": "20180607-111947_L000.txt",
+	"date": "20191129-000000",
+	"datafields": {
+		"timestamp": {
+			"type": "uint32",
+			"fields": 1,
+			"Unit": "mS",
+			"scale": 1
+		},
+        "temperature": {
+          "type": "int16",
+          "fields": 1,
+          "unit": "",
+          "scale": 512
+        },
+        "heartrate": {
+          "type": "uint16",
+          "fields": 1,
+          "unit": "bpm",
+          "scale": 256
+        },
+        "rrInterval": {
+          "type": "uint16",
+          "fields": 1,
+          "unit": "ms",
+          "scale": 1
+        },
+		"accel": {
+			"type": "int16",
+			"fields": 24,
+			"Unit": "m/s^2",
+			"scale": 256
+		},
+		"gyro": {
+			"type": "int16",
+			"fields": 24,
+			"Unit": "deg/s",
+			"scale": 32
+		},
+		"magn": {
+			"type": "int16",
+			"fields": 24,
+			"Unit": "uT",
+			"scale": 1
+		},
+        "updated": {
+          "type": "uint8",
+          "fields": 1,
+          "unit": "",
+          "scale": 1
+        }
+	}
+}

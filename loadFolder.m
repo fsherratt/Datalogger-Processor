@@ -23,7 +23,7 @@
 function [dataSet, labelSet] = loadFolder (DataFolder, DataHeader, applyCalibration)
     % Load all data from specified folder
     if nargin < 2 || isempty(DataHeader)
-        DataHeader = 'Data\data_structure.json';
+        DataHeader = 'data_structure.json';
     end
     
     if nargin < 3
