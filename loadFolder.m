@@ -1,5 +1,5 @@
 %{
-% Function name - Short description
+% Load Folder - Identifty all data files in folder
 % Long description
 %
 % Inputs: 
@@ -20,40 +20,50 @@
 % Website: fsherratt.dev
 % Sep 2018; Last revision: 22-Jan-2020
 %}
-function [dataSet, labelSet] = loadFolder (DataFolder, DataHeader, applyCalibration)
-    % Load all data from specified folder
-    if nargin < 2 || isempty(DataHeader)
-        DataHeader = 'data_structure.json';
+function [returnList] = loadFolder (DataFolder)
+    if nargin < 1 || isempty(DataFolder)
+        warning('loadFolder: No folder specified, using current working directory'); 
+        DataFolder = '';
     end
     
-    if nargin < 3
-        applyCalibration = false;
+    if ~endsWith(DataFolder, {'/', '\'})
+        warning('loadFolder: Folder missing trailing slash. A slash has been automatically added'); 
+        DataFolder = [DataFolder, '/'];
     end
 
+    % Load all data from specified folder
     fileList = dir([DataFolder, '*.txt']);
-    dataSet = struct('data', {}, 'file', '');
-    labelSet = struct('time', {}, 'label', [], 'file', '');
-    headerStruct = readHeader(DataHeader);
+    dataFiles = {};
+    labelFiles = {};
 
     for i = 1:length(fileList)
         fileName = [fileList(i).folder, '\', fileList(i).name];
-
+        if ( ~startsWith([fileList(i).name], 'Log') )
+            continue;
+        end
+        
         if ( endsWith([fileList(i).name], '_label.txt') )
-            [time, label] = readDataLabels(fileName);
-
-            labelSetRow.time = time;
-            labelSetRow.label = label;
-            labelSetRow.file = fileList(i).name;
-
-            labelSet(end+1) = labelSetRow;
+            labelFiles{end+1} = fileName;
         else
-            fileName = [fileList(i).folder, '\', fileList(i).name];
-
-            [~, split] = readData(fileName, headerStruct);
-            dataSetRow.data = preProcessDataFile(split, headerStruct, applyCalibration);
-            dataSetRow.file = fileList(i).name;
-
-            dataSet(end+1) = dataSetRow;
+            dataFiles{end+1} = fileName;
+        end
+    end
+    
+    returnList = struct('data', {}, 'label', '');    
+    
+    % Combine data and label set
+    for i = 1:length(dataFiles)
+        [~, data_file, ~] = fileparts(dataFiles{i});
+        
+        returnList(end+1) = struct('data', dataFiles{i}, 'label', '');
+        
+        for j = 1:length(labelFiles)
+            [~, label_file, ~] = fileparts(labelFiles{j});
+            
+            if strcmp(label_file, [data_file, '_label'])
+                % Found matchin label and data sets
+                returnList(end).label = labelFiles{j};
+            end
         end
     end
 

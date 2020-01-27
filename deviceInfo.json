@@ -1,6 +1,6 @@
 [{
     "address": "0C:8C:DC:2E:30:DC",
-    "name": "Right Ankle",
+    "name": "r_ankle",
     "x_accel_offset": 0.148412,
     "x_accel_scale": 0.996396,
     "y_accel_offset": 0.044844,
@@ -13,7 +13,7 @@
 },
 {
     "address": "0C:8C:DC:2E:32:67",
-    "name": "Left Ankle",
+    "name": "l_ankle",
     "x_accel_offset": 0.004046,
     "x_accel_scale": 0.994730,
     "y_accel_offset": -0.023918,
@@ -26,7 +26,7 @@
 },
 {
     "address": "0C:8C:DC:2E:33:78",
-    "name": "Right Hip",
+    "name": "r_hip",
     "x_accel_offset": -0.010457,
     "x_accel_scale": 1.001538,
     "y_accel_offset": -0.001700,
@@ -39,7 +39,7 @@
 },
 {
     "address": "0C:8C:DC:2E:40:7D",
-    "name": "Left Hip",
+    "name": "l_hip",
     "x_accel_offset": -0.025635,
     "x_accel_scale": 0.996670,
     "y_accel_offset": 0.098805,
@@ -52,7 +52,7 @@
 },
 {
     "address": "0C:8C:DC:2E:34:70",
-    "name": "Right Wrist",
+    "name": "r_wrist",
     "x_accel_offset": 0.012974,
     "x_accel_scale": 0.995690,
     "y_accel_offset": 0.032949,
@@ -65,7 +65,7 @@
 },
 {
     "address": "0C:8C:DC:2E:3B:81",
-    "name": "Left Wrist",
+    "name": "l_wrist",
     "x_accel_offset": 0.084937,
     "x_accel_scale": 0.993408,
     "y_accel_offset": 0.036470,
@@ -78,7 +78,7 @@
 },
 {
     "address": "0C:8C:DC:2E:3B:57",
-    "name": "Chest",
+    "name": "chest",
     "x_accel_offset": 0.040177,
     "x_accel_scale": 0.998043,
     "y_accel_offset": -0.036257,
@@ -91,7 +91,7 @@
 },
 {
     "address": "0C:8C:DC:22:2A:0B",
-    "name": "Dev",
+    "name": "dev",
     "x_accel_offset": -0.005544,
     "x_accel_scale": 1.002729,
     "y_accel_offset": 0.250027,

@@ -1,9 +1,3 @@
-% Load Data
-DataFolder = 'Data/Stair_Test/';
-
-[dataSet, labelSet] = loadFolder(DataFolder);
-labelSet = lableAlignment(dataSet, labelSet, true);
-
 %{
 % Function name - Short description
 % Long description
@@ -26,88 +20,92 @@ labelSet = lableAlignment(dataSet, labelSet, true);
 % Website: fsherratt.dev
 % Sep 2018; Last revision: 22-Jan-2020
 %}
-function [adjustedLabelSet] = lableAlignment(dataSet, labelSet, enableplot)
+function [label] = labelAlignment(data, label, enableplot)
     if nargin < 3
         enableplot = false;
     end
-
-    % Plot gyro
-    time = dataSet.data(1).time;
-
-    rAnkleRow = strcmp({dataSet.data.friendly}, 'Right Ankle');
-    lAnkleRow = strcmp({dataSet.data.friendly}, 'Left Ankle');
-
-    aMagR = vecnorm(dataSet.data(rAnkleRow).accel,2,2);
-    gyroYR = -dataSet.data(rAnkleRow).gyro(:, 3);
-    aMagL = vecnorm(dataSet.data(lAnkleRow).accel,2,2);
-    gyroYL = dataSet.data(lAnkleRow).gyro(:, 3);
-
+    
     if enableplot
         figure;
         axes;
         hold all
-        
-        plot(time, gyroYL)
-        plot(time, gyroYR)
     end
 
-    % Find heel strike
-    hsR = identifyHeelStrike(aMagR, gyroYR);
-    hsL = identifyHeelStrike(aMagL, gyroYL);
+    for j = 1:length(label)
+        %-------------------------------------------------------------------------------------------
+        % Plot gyro
+        time = data.time;
 
-    if enableplot
-        plot(time(hsR), gyroYR(hsR), 'xr')
-        plot(time(hsL), gyroYL(hsL), 'or')
-    end
-
-    % Process labels
-    ix = zeros(length(labelSet.time), 1);
-    for i = 1:length(labelSet.time)
-    % Find index of label
-        [~, ix(i)] = min(abs(time - labelSet.time(i)));
-    end
-
-
-    % Plot label locations
-    if enableplot
-        for i = ix
-            plot([time(i), time(i)], [500, -500], 'g:');
+        % Plot label locations
+        if enableplot
+            for i = label.time
+                plot([i, i], [500, -500], 'g:');
+            end
+            ylim([-300, 400]);
         end
-        ylim([-300, 400]);
-    end
+        %----------------------------------------------------------------------
 
+        % Adjust label locations - Align to closest heel strike (measured in time)
+        rAnkleRow = strcmp({data.friendly}, 'r_ankle');
+        lAnkleRow = strcmp({data.friendly}, 'l_ankle');
 
-    % Adjust label locations - Align to closest heel strike (measured in time)
-    hs = [hsR, hsL];
-    ix_new = zeros(length(ix), 1);
-    for i = 1:length(ix)
-        [~, ix_new(i)] = min(abs(hs - ix(i)));
-    end
-    ix_new = hs(ix_new);
+        aMagR = vecnorm(data(rAnkleRow).accel,2,2);
+        gyroYR = data(rAnkleRow).gyro(:, 3);
+        aMagL = vecnorm(data(lAnkleRow).accel,2,2);
+        gyroYL = data(lAnkleRow).gyro(:, 3);
 
-    adjustedLabelSet = labelSet;
-    adjustedLabelSet.timeRow = ix_new;
-    adjustedLabelSet.time = time(ix_new);
+        % Invert singal where swing is a negative rotation
+        if (skewness(gyroYR) < 0 && skewness(gyroYL) > 0)
+            gyroYR = -gyroYR;
+        else
+            gyroYL = -gyroYL;
+        end
 
-    % Plot new label locations
-    if enableplot
-        for i = ix_new
-            plot([time(i), time(i)], [500, -500], 'r:');
+        if enableplot
+            plot(time, gyroYL)
+            plot(time, gyroYR)
+        end
+
+        % Find heel strike
+        hsR = identifyHeelStrike(aMagR, gyroYR);
+        hsL = identifyHeelStrike(aMagL, gyroYL);
+
+        if enableplot
+            plot(time(hsR), gyroYR(hsR), 'xr')
+            plot(time(hsL), gyroYL(hsL), 'or')
+        end
+
+        hs = [hsR, hsL];
+        ix_new = zeros(length(label.time_row), 1);
+        for i = 1:length(label.time_row)
+            [~, ix_new(i)] = min(abs(hs - label.time_row(i)));
+        end
+        ix_new = hs(ix_new);
+
+        label.time_row = ix_new;
+        label.time = time(ix_new);
+
+        % Plot new label locations
+        if enableplot
+            for i = ix_new
+                plot([time(i), time(i)], [500, -500], 'r:');
+            end
+            hold off
         end
     end
-    hold off
 end
 
 function [hs] = identifyHeelStrike(aMag, gyroY)
+
     [~, gyro_locs] = findpeaks(gyroY, ...
-                        'MinPeakProminence', 1, ...
+                        'MinPeakProminence', 10, ...
                         'MinPeakHeight', 100, ...
                         'MinPeakDistance', 30 );
 
     [~, accel_locs] = findpeaks(aMag, ...
-                        'MinPeakProminence', 5, ...
-                        'MinPeakHeight', 12, ...
-                        'MinPeakDistance', 10 );
+                        'MinPeakProminence', 7, ...
+                        'MinPeakHeight', 15, ...
+                        'MinPeakDistance', 30 );
 
     % Each HS should be an accleration peak preceded by a leg swing
     hs = [];

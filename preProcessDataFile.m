@@ -2,7 +2,7 @@
 % Function name - Data file pre-processor
 % Long description
 %
-% ToDo IMU Calibration
+% ToDo Check if field exsists before adding to dataSet
 %
 % Inputs: 
 %   var1 - description
@@ -23,9 +23,14 @@
 % Sep 2018; Last revision: 22-Jan-2020
 %}
 
-function [deviceData] = preProcessDataFile(split, struct, applyCalibration)
+function [deviceData] = preProcessDataFile(split, struct, resampleFrequency, applyCalibration)
 
-    if nargin == 2
+    if nargin < 3 || isempty(resampleFrequency)
+        Warning('preProcessDataFile: no frequncy specified, data not resampled');
+        resampleFrequency = 0;
+    end
+    
+    if nargin < 4
         applyCalibration = false;
     end
 
@@ -93,7 +98,7 @@ function [deviceData] = preProcessDataFile(split, struct, applyCalibration)
         
         % Resampling too 100Hz
         data = [timestamp, accel, gyro, magn];
-        data = resampleData( 100, timestamp, data);
+        data = resampleData(resampleFrequency, timestamp, data);
 
         
         % Pack data

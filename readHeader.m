@@ -22,6 +22,11 @@
 %}
 function [struct] = readHeader(file)
 
+    if nargin < 1 || isempty(file)
+        warning('readHeader: No header file specified, using default header file');
+        file = 'data_structure.json';
+    end
+
     fileData = fileread( file );
     struct = jsondecode( fileData );
     
