@@ -35,18 +35,14 @@ function [output] = readDataLabels(filename, frequency)
     timestamp = timestamp - timestamp(1);
     timestamp = timestamp ./ 1000;
 
-    % Convert from to numerical list
-    fileData = fileread( "activities.json" );
-    activites = jsondecode(fileData);
-    activity_number = containers.Map(activites, 1:size(activites, 1));
-
+    % Convert from strings to numerical list
     output = struct('time', [], 'label', [], 'time_row', []);
 
     for i = 1:size(text_label,1)
         if ~strcmp(text_label{i}, {'START', 'END'})
             output.time(end+1) = timestamp(i);
             output.time_row(end+1) = floor(timestamp(i)*frequency);
-            output.label(end+1) = activity_number(text_label{i});
+            output.label(end+1) = convertLabel(text_label{i});
         end
     end
 end

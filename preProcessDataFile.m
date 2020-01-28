@@ -113,6 +113,16 @@ function [deviceData] = preProcessDataFile(split, struct, resampleFrequency, app
         deviceData(i).heartrate = [hrTime, heartrate];
         deviceData(i).temperature = [tempTime, temperature];
     end
+    
+    % Crop sensors to the same length
+    minSamples = min([deviceData.samples]);
+
+    for i = 1:length(deviceData)
+        deviceData(i).time = deviceData(i).time(1:minSamples, :);
+        deviceData(i).accel = deviceData(i).accel(1:minSamples, :);
+        deviceData(i).gyro = deviceData(i).gyro(1:minSamples, :);
+        deviceData(i).magn = deviceData(i).magn(1:minSamples, :);
+    end
 
     fprintf('--------------------------------------------------------------------------------\n');
     
