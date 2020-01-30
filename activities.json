@@ -5,4 +5,8 @@
 "stair_up",
 "stair_down",
 "stop",
-"abrupt_stop"]
+"abrupt_stop",
+"tran_SA->W",
+"tran_SD->W",
+"tran_W->SA",
+"tran_W->SD"]

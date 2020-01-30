@@ -1,5 +1,6 @@
 clear Config
 tic
+
 %---------------------------------------------------------------------------------------------------
 % Pipeline Configuration
 %---------------------------------------------------------------------------------------------------
@@ -15,6 +16,7 @@ Config.OutputLogFile = 'output.log'; % Output log file name
 
 Config.DataHeader = []; % Use default header file
 Config.TargetFrequency = 100; % Hz
+
 Config.ApplyIMUCalibration = true; % Apply user calibration file to sensors
 
 Config.RealignLabels = true;
@@ -26,8 +28,17 @@ Config.PlotSplitData = false;
 Config.SaveToCsv = true;
 
 Config.UpdateLogFile = true;
-%---------------------------------------------------------------------------------------------------
+LogStruct = struct('Date_created', '', ...
+                    'Save_Location', Config.DataOutputFolder, ...
+                    'Input_file', '', ...
+                    'Sample_Rate', Config.TargetFrequency, ...
+                    'Imu_Calibration', Config.ApplyIMUCalibration, ...
+                    'Realign_Labels', Config.RealignLabels, ...
+                    'Split_index', 0);
 
+%---------------------------------------------------------------------------------------------------
+% Pipeline
+%---------------------------------------------------------------------------------------------------
 % Find log files - match data and label files
 dataFiles = loadFolder(Config.DataFolder);
 if isempty(dataFiles)
@@ -40,8 +51,9 @@ header = readHeader(Config.DataHeader);
 
 for i = 1:length(dataFiles)
     % Open and parse data file
+    LogStruct.Input_file = dataFiles(i).data;
     [~, data] = readData(dataFiles(i).data, header);
-
+    
     % Split sensors and apply pre-processing
     data = preProcessDataFile(data, header, Config.TargetFrequency, Config.ApplyIMUCalibration);
     [hsR, hsL] = identifyHeelStrike(data);
@@ -65,7 +77,7 @@ for i = 1:length(dataFiles)
     
     % Split data into activity segments
     if Config.SplitTableAtTransition
-        [output, stats] = splitTransitionData(output, label, [hsR, hsL], Config.PlotSplitData);
+        [output, Stats] = splitTransitionData(output, label, [hsR, hsL], Config.PlotSplitData);
     end
      
     if Config.SaveToCsv
@@ -73,7 +85,7 @@ for i = 1:length(dataFiles)
             % Generate file name
             [~, file, ~]  = fileparts(dataFiles(i).data);
             data_file = sprintf('%s%s_%d%s',Config.OutputPrefix, file, n, Config.OutputSuffix);
-
+            
             % Save to CSV
             fprintf('Saving to file: %s\n', reduceTextLength(data_file, 61));
             writetable(output{n}, [Config.DataOutputFolder, data_file], ...
@@ -84,16 +96,18 @@ for i = 1:length(dataFiles)
                 fprintf('Updating log file\n');
                 fid = fopen([Config.OutputLogFilePath, Config.OutputLogFile], 'a+');
                 date = string(datetime('now', 'Format', 'yyyy-MM-DD-HH-mm-SS'));
-
-                [~] = fprintf(fid, ['- %s:\n', '\tdate_created: %s\n', '\tsave_location: %s\n', ...
-                    '\tinput_file: %s\n', '\tsplit_number: %d\n', '\tsample_rate: %d\n',  ...
-                    '\timu_calibration: %d\n', '\trealign_labels: %d\n'], ...
-                    data_file, date, Config.DataOutputFolder, dataFiles(i).data, n, ...
-                    Config.TargetFrequency, Config.ApplyIMUCalibration, Config.RealignLabels);
                 
+                LogStruct.Date_created = date;
+                LogStruct.Split_index = n;
+                
+                [~] = fprintf(fid, '- %s:\n', data_file);
+                structToTxt(fid, LogStruct);
+                
+                % Add split stats to log file
                 if Config.SplitTableAtTransition
-                    % Add stats to yaml file
+                    structToTxt(fid, Stats(n));
                 end
+                
                 [~] = fclose(fid);
             end
         end
@@ -101,8 +115,21 @@ for i = 1:length(dataFiles)
     fprintf('--------------------------------------------------------------------------------\n');
 end
 
-clear dataFiles header i data label file data_file date fid hsR hsL
+clear dataFiles header i j n data label file data_file date fid hsR hsL LogStruct Stats
 toc
 %---------------------------------------------------------------------------------------------------
 
+function structToTxt(fid, structure)
+    fn = fieldnames(structure);
+    for j = 1:numel(fn)
+        field = fn{j};
+        val = structure.(field);
+
+        if isnumeric(val) || islogical(val)
+            fprintf(fid, '\t%s: %d\n', field, val);
+        else
+            fprintf(fid, '\t%s: %s\n', field, val);
+        end
+    end
+end
 % EOF

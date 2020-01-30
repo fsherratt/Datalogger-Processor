@@ -1,29 +1,60 @@
-function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
-    StepsBeforeTransition = 7;
-    TranstionSteps = 10;
-    StepsAfterTransition = 5;
-    
-    stats = [];
+% splitTransitionData - Short description
+% Long description
+%
+% Inputs: 
+%   dataTable - description
+%   label -
+%   hs -
+%   debugPlots -
+%
+% Outputs:
+%   output - description
+%   stats -
+%
+% Other m-files required: convertLabel
+% Subfunctions: none
+% MAT-files required: none
+%
+% See also: readData, labelAlignment, identifyHeelStrike, postProcessData
+%
+% Author: Freddie Sherratt
+% University of Bath
+% email: F.W.Sherratt@bath.ac.uk
+% Website: fsherratt.dev
+% Sep 2018; Last revision: 30-Jan-2020
 
+function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
+    Config.StepsBeforeTransition = 5;
+    Config.TranstionSteps = 2;
+    Config.StepsAfterTransition = 5;
+    
     walking = convertLabel('walking');
     stairD = convertLabel('stair_down');
-    stairU = convertLabel('stair_up');
-
+    stairA = convertLabel('stair_up');
 
     % Find transition points
     transitionPoints = [];
+    transitionType = [];
     for i = 2:length(label.label)-1
         currLabel = label.label(i);
         nextLabel = label.label(i+1);
-        if (currLabel == walking && nextLabel == stairD ) ...
-                || (currLabel == walking && nextLabel == stairU ) ...
-                || (currLabel == stairU  && nextLabel == walking ) ...
-                || (currLabel == stairD  && nextLabel == walking )
-            fprintf('Transition @ time: %0.2fs\trow: %d\n', label.time(i+1), label.time_row(i+1));
-            fprintf('%s (%d) -> %s (%d)\n', convertLabel(label.label(i)), label.label(i), convertLabel(label.label(i+1)), label.label(i+1));
-
-            transitionPoints(end+1) = i+1;
+        
+        if (currLabel == walking && nextLabel == stairD )
+            transitionType(end+1) = convertLabel('tran_W->SD');
+        elseif (currLabel == walking && nextLabel == stairA )
+            transitionType(end+1) = convertLabel('tran_W->SA');
+        elseif (currLabel == stairA  && nextLabel == walking )
+            transitionType(end+1) = convertLabel('tran_SA->W');
+        elseif (currLabel == stairD  && nextLabel == walking )
+           transitionType(end+1) = convertLabel('tran_SD->W');
+        else
+            continue;
         end
+        
+        fprintf('Transition @ time: %0.2fs\trow: %d\n', label.time(i+1), label.time_row(i+1));
+        fprintf('%s (%d) -> %d -> %s (%d)\n', convertLabel(label.label(i)), label.label(i), transitionType(end), convertLabel(label.label(i+1)), label.label(i+1));
+
+        transitionPoints(end+1) = i+1;
     end
 
 
@@ -40,8 +71,8 @@ function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
     % Check that x steps of activity occur either side of transition
     prevLabel = label.time_row(transitionPoints-1);
     nextLabel = label.time_row(transitionPoints+1);
-    startIx = hs(transitionHsIx - StepsBeforeTransition);
-    endIx = hs(transitionHsIx + StepsAfterTransition);
+    startIx = hs(transitionHsIx - Config.StepsBeforeTransition - Config.TransitionSteps);
+    endIx = hs(transitionHsIx + Config.StepsAfterTransition);
 
     valid = (prevLabel < startIx) & (nextLabel > endIx);
 
@@ -51,11 +82,19 @@ function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
 
 
     % Add in transition label for step preceeding tansition point
-    startTransitionHsRow = hs(ValidTransitionHsIx - TranstionSteps);
+    startTransitionRow = hs(ValidTransitionHsIx - Config.TranstionSteps);
     endTransitionRow = hs(ValidTransitionHsIx);
 
-    for i = 1:length(startTransitionHsRow)
-        dataTable.activity(startTransitionHsRow(i):endTransitionRow(i)) = 10;
+    for i = 1:length(startTransitionRow)
+        dataTable.activity(startTransitionRow(i):endTransitionRow(i)) = transitionType(i);
+        
+        stats(i) = struct('Pre_Steps', Config.StepsBeforeTransition, ...
+                          'Tran_Steps', Config.TransitionSteps, ...
+                          'Post_Steps', Config.StepsAfterTransition, ...
+                          'Tran_type', transitionType(i), ...
+                          'Pre_samples', startTransitionRow(i) - splitStart(i), ...
+                          'Tran_samples', endTransitionRow(i) - startTransitionRow(i), ...
+                          'Post_samples', splitEnd(i) - endTransitionRow(i));
     end
 
 
