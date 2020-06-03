@@ -1,5 +1,4 @@
-%{
-% Function name - Short description
+% getCalibration - Short description
 % Long description
 %
 % Inputs: 
@@ -19,7 +18,7 @@
 % email: F.W.Sherratt@bath.ac.uk
 % Website: fsherratt.dev
 % Sep 2018; Last revision: 22-Jan-2020
-%}
+
 function [calib] = getCalibration(deviceAddress)
     fileData = fileread( "deviceInfo.json" );
     deviceInfo = jsondecode(fileData);

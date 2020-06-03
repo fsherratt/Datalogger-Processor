@@ -24,6 +24,7 @@ function [struct] = readHeader(file)
 
     if nargin < 1 || isempty(file)
         warning('readHeader: No header file specified, using default header file');
+        input('Press Enter to continue')
         file = 'data_structure.json';
     end
 

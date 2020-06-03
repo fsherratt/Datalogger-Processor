@@ -22,12 +22,14 @@
 %}
 function [returnList] = loadFolder (DataFolder)
     if nargin < 1 || isempty(DataFolder)
-        warning('loadFolder: No folder specified, using current working directory'); 
+        warning('loadFolder: No folder specified, using current working directory');
+        input('Press Enter to continue')
         DataFolder = '';
     end
     
     if ~endsWith(DataFolder, {'/', '\'})
-        warning('loadFolder: Folder missing trailing slash. A slash has been automatically added'); 
+        warning('loadFolder: Folder missing trailing slash. A slash has been automatically added');
+        input('Press Enter to continue')
         DataFolder = [DataFolder, '/'];
     end
 

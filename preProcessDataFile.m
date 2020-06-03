@@ -23,22 +23,39 @@
 % Sep 2018; Last revision: 22-Jan-2020
 %}
 
-function [deviceData] = preProcessDataFile(split, struct, resampleFrequency, applyCalibration)
-
-    if nargin < 3 || isempty(resampleFrequency)
+function [deviceData] = preProcessDataFile(split, struct, devices, resampleFrequency, applyCalibration)
+    
+    if nargin < 3 || size(devices, 1) == 0
+            Warning('preProcessDataFile: devices is empty - using all available devices');
+            input('Press Enter to continue')
+            devices = [];
+    end
+    
+    if nargin < 4 || isempty(resampleFrequency)
         Warning('preProcessDataFile: no frequncy specified, data not resampled');
+        input('Press Enter to continue')
         resampleFrequency = 0;
     end
     
-    if nargin < 4
+    if nargin < 5
         applyCalibration = false;
     end
 
     fprintf('Split Device Data\n');
-    devices = unique(split.device);
+    availableDevices = unique(split.device);
+    
+    if size(devices, 1) == 0
+        devices = availableDevices;
+    % Compare available devices with specified devices
+    elseif ~all(contains(devices, availableDevices))
+        % Error if not available
+        error('Not all devices found in data file');
+    end
 
+    % Use input available
+    
     for i = 1:length(devices)
-        fprintf("Seperating device %s\n", getFriendlyName(devices(i)));
+%         fprintf("Seperating device %s\n", getFriendlyName(devices(i)));
            
         % Get data rows for device
         deviceRows = split.device == convertStringsToChars(devices(i));
@@ -94,12 +111,16 @@ function [deviceData] = preProcessDataFile(split, struct, resampleFrequency, app
             accel = accel +  [calib.x_accel_offset, calib.y_accel_offset, calib.z_accel_offset];
             gyro  = gyro  +  [calib.x_gyro_offset,  calib.y_gyro_offset,  calib.z_gyro_offset ];
         end
-        % Todo
+        
+        deltaT = timestamp(i+1:end) - timestamp(i:end-1);
+        freq = 1./(deltaT);
+        fprintf( "(%d)\t%s\t -\tSamples: %d  Avg: %0.2f  Std: %0.2f  Min: %0.2f  Max: %0.2f\n", ...
+            i, getFriendlyName(devices(i)), length(timestamp),  mean(freq), std(freq), ...
+            min(freq), max(freq) );
         
         % Resampling too 100Hz
         data = [timestamp, accel, gyro, magn];
         data = resampleData(resampleFrequency, timestamp, data);
-
         
         % Pack data
         deviceData(i).name = devices(i);
@@ -113,9 +134,17 @@ function [deviceData] = preProcessDataFile(split, struct, resampleFrequency, app
         deviceData(i).heartrate = [hrTime, heartrate];
         deviceData(i).temperature = [tempTime, temperature];
     end
+
+    fprintf('--------------------------------------------------------------------------------\n');
     
     % Crop sensors to the same length
     minSamples = min([deviceData.samples]);
+    
+    % ToDo Error is large variation between sample numbers
+    if range([deviceData.samples]) > 0.1 * minSamples
+        warning('Error number of sensor samples vary too much. Did a sensor disconnect?')        
+        input('Press Enter to continue')
+    end
 
     for i = 1:length(deviceData)
         deviceData(i).time = deviceData(i).time(1:minSamples, :);
@@ -123,20 +152,6 @@ function [deviceData] = preProcessDataFile(split, struct, resampleFrequency, app
         deviceData(i).gyro = deviceData(i).gyro(1:minSamples, :);
         deviceData(i).magn = deviceData(i).magn(1:minSamples, :);
     end
-
-    fprintf('--------------------------------------------------------------------------------\n');
-    
-    for i = 1:size(deviceData, 2)
-        timestamp = deviceData(i).time;
-
-        deltaT = timestamp(i+1:end) - timestamp(i:end-1);
-        freq = 1./(deltaT);
-        fprintf( "%s\t -\tSamples: %d  Avg: %0.2f  Std: %0.2f  Min: %0.2f  Max: %0.2f\n", ...
-            getFriendlyName(deviceData(i).name), length(timestamp),  mean(freq), std(freq), ...
-            min(freq), max(freq) );
-    end
-
-    fprintf('--------------------------------------------------------------------------------\n');
 end
 
 function [data] = resampleData(resampleRate, timestamp, data)

@@ -25,7 +25,7 @@
 
 function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
     Config.StepsBeforeTransition = 5;
-    Config.TranstionSteps = 2;
+    Config.TransitionSteps = 2;
     Config.StepsAfterTransition = 5;
     
     walking = convertLabel('walking');
@@ -82,7 +82,7 @@ function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
 
 
     % Add in transition label for step preceeding tansition point
-    startTransitionRow = hs(ValidTransitionHsIx - Config.TranstionSteps);
+    startTransitionRow = hs(ValidTransitionHsIx - Config.TransitionSteps);
     endTransitionRow = hs(ValidTransitionHsIx);
 
     for i = 1:length(startTransitionRow)

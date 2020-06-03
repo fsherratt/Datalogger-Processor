@@ -39,7 +39,7 @@ function [labelOut] = labelAlignment(data, label, hs, enableplot)
     if enableplot
         figure;
         axes;
-        ylim([-300, 400]);
+        ylim([-600, 600]);
         hold all
         
         rAnkleRow = strcmp({data.friendly}, 'r_ankle');
@@ -48,7 +48,7 @@ function [labelOut] = labelAlignment(data, label, hs, enableplot)
         gyroYL = data(lAnkleRow).gyro(:, 3);
         
         plot(data(1).time, gyroYL)
-        plot(data(1).time, gyroYR)
+        plot(data(1).time, -gyroYR)
         
         plot(data(1).time(hs), gyroYR(hs), 'xr')
         

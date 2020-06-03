@@ -1,13 +1,18 @@
 clear Config
 tic
 
+warning('off','backtrace');
+
 %---------------------------------------------------------------------------------------------------
 % Pipeline Configuration
 %---------------------------------------------------------------------------------------------------
-Config.DataFolder = 'Data/Stair_Test/'; % Folder containing the raw data
+% Folder containing the raw data
+Config.DataFolder = '\\myfiles\fs349\dos\PhD\Code\Datalogger-Processor\Data\Stairs\Participant_09'; 
 
-Config.DataOutputFolder = 'C:\Users\fs349\Desktop\Out\'; % Folder to save output to
-% Config.DataOutputFolder = 'Out/';
+Config.Devices = ["0C:8C:DC:2E:30:DC", "0C:8C:DC:2E:32:67"];%, "0C:8C:DC:2E:33:78", "0C:8C:DC:2E:40:7D"];
+
+% Config.DataOutputFolder = 'C:\Users\fs349\Desktop\Out\'; % Folder to save output to
+Config.DataOutputFolder = 'Out/';
 Config.OutputPrefix = 'Out_'; % Genearted file prefix
 Config.OutputSuffix = '.csv'; % Generated file suffix
 
@@ -23,9 +28,9 @@ Config.RealignLabels = true;
 Config.PlotAlignmentLabels = false; % Show label debug plots
 
 Config.SplitTableAtTransition = true;
-Config.PlotSplitData = false;
+Config.PlotSplitData = true;
 
-Config.SaveToCsv = true;
+Config.SaveToCsv = false;
 
 Config.UpdateLogFile = true;
 LogStruct = struct('Date_created', '', ...
@@ -55,7 +60,7 @@ for i = 1:length(dataFiles)
     [~, data] = readData(dataFiles(i).data, header);
     
     % Split sensors and apply pre-processing
-    data = preProcessDataFile(data, header, Config.TargetFrequency, Config.ApplyIMUCalibration);
+    data = preProcessDataFile(data, header, Config.Devices, Config.TargetFrequency, Config.ApplyIMUCalibration);
     [hsR, hsL] = identifyHeelStrike(data);
     
     % If a label file exsists
