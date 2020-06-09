@@ -6,13 +6,11 @@ warning('off','backtrace');
 %---------------------------------------------------------------------------------------------------
 % Pipeline Configuration
 %---------------------------------------------------------------------------------------------------
+Config.DataFolder = 'C:\Users\Freddie\Documents\PhD\Data\Stairs\Participant_01'; % Folder containing the raw data
 % Folder containing the raw data
-Config.DataFolder = '\\myfiles\fs349\dos\PhD\Code\Datalogger-Processor\Data\Stairs\Participant_09'; 
 
 Config.Devices = ["0C:8C:DC:2E:30:DC", "0C:8C:DC:2E:32:67"];%, "0C:8C:DC:2E:33:78", "0C:8C:DC:2E:40:7D"];
-
-% Config.DataOutputFolder = 'C:\Users\fs349\Desktop\Out\'; % Folder to save output to
-Config.DataOutputFolder = 'Out/';
+% Config.DataOutputFolder = 'Out/';
 Config.OutputPrefix = 'Out_'; % Genearted file prefix
 Config.OutputSuffix = '.csv'; % Generated file suffix
 
