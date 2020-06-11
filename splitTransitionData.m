@@ -40,13 +40,13 @@ function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
         nextLabel = label.label(i+1);
         
         if (currLabel == walking && nextLabel == stairD )
-            transitionType(end+1) = convertLabel('tran_W->SD');
+            transitionType(end+1) = convertLabel('tran_W_SD');
         elseif (currLabel == walking && nextLabel == stairA )
-            transitionType(end+1) = convertLabel('tran_W->SA');
+            transitionType(end+1) = convertLabel('tran_W_SA');
         elseif (currLabel == stairA  && nextLabel == walking )
-            transitionType(end+1) = convertLabel('tran_SA->W');
+            transitionType(end+1) = convertLabel('tran_SA_W');
         elseif (currLabel == stairD  && nextLabel == walking )
-           transitionType(end+1) = convertLabel('tran_SD->W');
+           transitionType(end+1) = convertLabel('tran_SD_W');
         else
             continue;
         end

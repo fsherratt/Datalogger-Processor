@@ -29,9 +29,9 @@ function [output] = convertLabel(label, activityFile)
     activites = jsondecode(fileData);
     
     if isnumeric(label)
-        activity_map = containers.Map(1:size(activites, 1), activites);
+        activity_map = containers.Map(struct2cell(activites), fieldnames(activites));
     else
-        activity_map = containers.Map(activites, 1:size(activites, 1));
+        activity_map = containers.Map(fieldnames(activites), struct2cell(activites));
     end
     
     output = activity_map(label);   
