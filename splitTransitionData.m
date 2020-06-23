@@ -84,6 +84,8 @@ function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
     % Add in transition label for step preceeding tansition point
     startTransitionRow = hs(ValidTransitionHsIx - Config.TransitionSteps);
     endTransitionRow = hs(ValidTransitionHsIx);
+    
+    transitionType = transitionType(valid);
 
     for i = 1:length(startTransitionRow)
         dataTable.activity(startTransitionRow(i):endTransitionRow(i)) = transitionType(i);

@@ -81,6 +81,8 @@ for i = 1:length(dataFiles)
     % Split data into activity segments
     if Config.SplitTableAtTransition
         [output, Stats] = splitTransitionData(output, label, [hsR, hsL], Config.PlotSplitData);
+    else
+        output = {output};
     end
      
     if Config.SaveToCsv

@@ -156,21 +156,21 @@ end
 
 function [data] = resampleData(resampleRate, timestamp, data)
     if resampleRate > 0
-%         date = datetime( '1970-01-01-000000', 'InputFormat', 'yyyy-MM-dd-HHmmSS' );
-%         dateArray = date + seconds(timestamp);
+        date = datetime( '1970-01-01-000000', 'InputFormat', 'yyyy-MM-dd-HHmmSS' );
+        dateArray = date + seconds(timestamp);
 
-        tvec = (0:length(data)) ./ resampleRate;
-        data(:, 1) = data(:, 1) - data(1, 1);
-        
-        data = timeseries(data(:, 2:end), data(:, 1));
-        dataResample = resample(data, tvec, 'linear');
-        dataResample = [dataResample.Time, dataResample.Data];
+%         tvec = (0:length(data)) ./ resampleRate;
+%         data(:, 1) = data(:, 1) - data(1, 1);
+%         
+%         data = timeseries(data(:, 2:end), data(:, 1));
+%         dataResample = resample(data, tvec, 'linear');
+%         dataResample = [dataResample.Time, dataResample.Data];
          
-        dataResample = dataResample(~isnan(dataResample(:,end)), : );
+%         dataResample = dataResample(~isnan(dataResample(:,end)), : );
 
-%         dataResample = resample( data, dateArray, resampleRate, 'spline' );
-%         dataResample( :, 1 ) = ( 0:(length(dataResample)-1) ) ./resampleRate;
-% 
+        dataResample = resample( data, dateArray, resampleRate, 'spline' );
+        dataResample( :, 1 ) = ( 0:(length(dataResample)-1) ) ./resampleRate;
+
         data = dataResample;
     end
 end

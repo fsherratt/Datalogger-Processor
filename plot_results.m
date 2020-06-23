@@ -22,6 +22,12 @@ yyaxis right
 plot(source_data.time(129:end), result_data(:, 1), 'r-')
 plot(source_data.time(129:end), result_data(:, 2), 'g:')
 plot(source_data.time(129:end), result_data(:, 3), 'b--')
-plot(source_data.time(129:end), result_data(:, 4), 'k-.')
-legend('label', 'walking', 'stair descent', 'stair ascent', 'transition')
+lgnd = {'label', 'walking', 'stair ascent', 'stair descent'};
+
+if size(result_data, 2) == 4
+    plot(source_data.time(129:end), result_data(:, 4), 'k-.')
+    lgnd{end+1} = 'transition';
+end
+
+legend(lgnd)
 hold off
