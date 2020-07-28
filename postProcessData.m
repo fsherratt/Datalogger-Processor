@@ -44,6 +44,10 @@ function [table] = postProcessData(data, label)
     tableHeader = [tableHeader, 'activity'];
     labelColumn = zeros(length(tableData), 1);
     for i = 1:length(label.label)-1
+        if (label.time_row(i+1) > length(tableData))
+            continue;
+        end
+        
         if i == 1
             labelColumn(1:label.time_row(i+1)) = label.label(i);
         elseif i == length(label.label)-1

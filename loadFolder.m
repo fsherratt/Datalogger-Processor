@@ -44,6 +44,9 @@ function [returnList] = loadFolder (DataFolder)
         
         if ( endsWith([fileList(i).name], '_label.txt') )
             labelFiles{end+1} = fileName;
+     
+        elseif ( endsWith([fileList(i).name], '_meta.txt') )
+            continue;
         else
             dataFiles{end+1} = fileName;
         end

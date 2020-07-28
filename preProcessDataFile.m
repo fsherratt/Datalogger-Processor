@@ -47,9 +47,21 @@ function [deviceData] = preProcessDataFile(split, struct, devices, resampleFrequ
     if size(devices, 1) == 0
         devices = availableDevices;
     % Compare available devices with specified devices
-    elseif ~all(contains(devices, availableDevices))
-        % Error if not available
-        error('Not all devices found in data file');
+    else
+        selected_device_Set = [];
+        for k = 1:length(devices)
+            deviceSet = devices{k};
+            if all(contains(deviceSet, availableDevices))
+                selected_device_Set = deviceSet;
+                break;
+            end
+        
+        end
+        if isempty(selected_device_Set)
+            % Error if not available
+            error('Not all devices found in data file');
+        end
+        devices = selected_device_Set;
     end
 
     % Use input available
@@ -72,9 +84,12 @@ function [deviceData] = preProcessDataFile(split, struct, devices, resampleFrequ
         aTime = aTime./1000;
 
         drift = timestamp - aTime;
+        
+%         figure;
+%         plot(timestamp, drift);
+        
         p = polyfit(timestamp, drift, 1);
         timestamp = timestamp - polyval(p,timestamp);
-
         
         % Heartrate data
         updated = split.updated(deviceRows);
@@ -158,15 +173,6 @@ function [data] = resampleData(resampleRate, timestamp, data)
     if resampleRate > 0
         date = datetime( '1970-01-01-000000', 'InputFormat', 'yyyy-MM-dd-HHmmSS' );
         dateArray = date + seconds(timestamp);
-
-%         tvec = (0:length(data)) ./ resampleRate;
-%         data(:, 1) = data(:, 1) - data(1, 1);
-%         
-%         data = timeseries(data(:, 2:end), data(:, 1));
-%         dataResample = resample(data, tvec, 'linear');
-%         dataResample = [dataResample.Time, dataResample.Data];
-         
-%         dataResample = dataResample(~isnan(dataResample(:,end)), : );
 
         dataResample = resample( data, dateArray, resampleRate, 'spline' );
         dataResample( :, 1 ) = ( 0:(length(dataResample)-1) ) ./resampleRate;

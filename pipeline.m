@@ -1,34 +1,42 @@
 clear Config
 tic
 
-warning('off','backtrace');
+warning('on','all');
 
 %---------------------------------------------------------------------------------------------------
 % Pipeline Configuration
 %---------------------------------------------------------------------------------------------------
-Config.DataFolder = 'C:\Users\Freddie\Documents\PhD\Data\Stairs\Participant_01'; % Folder containing the raw data
 % Folder containing the raw data
+% Config.DataFolder = 'C:/Users/Freddie/Documents/PhD/Data/Stair_Video/'; % Folder containing the raw data
+Config.DataFolder = 'C:/Users/Freddie/Documents/PhD/Data/Stairs/**';
 
-Config.Devices = ["0C:8C:DC:2E:30:DC", "0C:8C:DC:2E:32:67"];%, "0C:8C:DC:2E:33:78", "0C:8C:DC:2E:40:7D"];
-% Config.DataOutputFolder = 'Out/';
+Config.Devices = {};
+Config.Devices{1} = ["0C:8C:DC:2E:30:DC", "0C:8C:DC:2E:32:67", ...
+                     "0C:8C:DC:2E:33:78", "0C:8C:DC:2E:40:7D", ...
+                     "0C:8C:DC:2E:3B:57"];
+Config.Devices{2} = ["0C:8C:DC:2E:34:70", "0C:8C:DC:2E:40:6C", ...
+                     "0C:8C:DC:2E:33:3D", "0C:8C:DC:2E:3B:FF", ...
+                     "0C:8C:DC:2E:3B:81"];
+
+Config.DataOutputFolder = 'C:/Users/Freddie/Documents/PhD/Data/Stairs/Out/';
 Config.OutputPrefix = 'Out_'; % Genearted file prefix
-Config.OutputSuffix = '.csv'; % Generated file suffix
+Config.OutputSuffix = '.csv'; % Generated file extension
 
 Config.OutputLogFilePath = Config.DataOutputFolder; % Output log file save location
 Config.OutputLogFile = 'output.log'; % Output log file name
 
-Config.DataHeader = []; % Use default header file
+Config.DataHeader = []; % Use default data header file
 Config.TargetFrequency = 100; % Hz
 
-Config.ApplyIMUCalibration = true; % Apply user calibration file to sensors
+Config.ApplyIMUCalibration = false; % Apply user calibration file to sensors
 
 Config.RealignLabels = true;
 Config.PlotAlignmentLabels = false; % Show label debug plots
 
 Config.SplitTableAtTransition = true;
-Config.PlotSplitData = true;
+Config.PlotSplitData = false;
 
-Config.SaveToCsv = false;
+Config.SaveToCsv = true;
 
 Config.UpdateLogFile = true;
 LogStruct = struct('Date_created', '', ...
@@ -58,7 +66,9 @@ for i = 1:length(dataFiles)
     [~, data] = readData(dataFiles(i).data, header);
     
     % Split sensors and apply pre-processing
-    data = preProcessDataFile(data, header, Config.Devices, Config.TargetFrequency, Config.ApplyIMUCalibration);
+    data = preProcessDataFile(data, header, Config.Devices, ...
+                              Config.TargetFrequency, ...
+                              Config.ApplyIMUCalibration);
     [hsR, hsL] = identifyHeelStrike(data);
     
     % If a label file exsists

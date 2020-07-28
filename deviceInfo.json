@@ -1,6 +1,7 @@
 [{
     "address": "0C:8C:DC:2E:30:DC",
     "name": "r_ankle",
+    "id": "182630003000",
     "x_accel_offset": 0.148412,
     "x_accel_scale": 0.996396,
     "y_accel_offset": 0.044844,
@@ -14,6 +15,7 @@
 {
     "address": "0C:8C:DC:2E:32:67",
     "name": "l_ankle",
+    "id": "192630003196",
     "x_accel_offset": 0.004046,
     "x_accel_scale": 0.994730,
     "y_accel_offset": -0.023918,
@@ -27,6 +29,7 @@
 {
     "address": "0C:8C:DC:2E:33:78",
     "name": "r_hip",
+    "id": "192630003295",
     "x_accel_offset": -0.010457,
     "x_accel_scale": 1.001538,
     "y_accel_offset": -0.001700,
@@ -40,6 +43,7 @@
 {
     "address": "0C:8C:DC:2E:40:7D",
     "name": "l_hip",
+    "id": "192730000417",
     "x_accel_offset": -0.025635,
     "x_accel_scale": 0.996670,
     "y_accel_offset": 0.098805,
@@ -51,8 +55,24 @@
     "z_gyro_offset": -0.953093
 },
 {
+    "address": "0C:8C:DC:2E:3B:57",
+    "name": "chest",
+    "id": "192730000007",
+    "x_accel_offset": 0.040177,
+    "x_accel_scale": 0.998043,
+    "y_accel_offset": -0.036257,
+    "y_accel_scale": 0.984742,
+    "z_accel_offset": -0.022715,
+    "z_accel_scale": 0.996779,
+    "x_gyro_offset": 1.435097,
+    "y_gyro_offset": 0.954037,
+    "z_gyro_offset": 0.268559
+},
+
+{
     "address": "0C:8C:DC:2E:34:70",
-    "name": "r_wrist",
+    "name": "chest",
+    "id": "192630003382",
     "x_accel_offset": 0.012974,
     "x_accel_scale": 0.995690,
     "y_accel_offset": 0.032949,
@@ -65,7 +85,8 @@
 },
 {
     "address": "0C:8C:DC:2E:3B:81",
-    "name": "l_wrist",
+    "name": "r_ankle",
+    "id": "192730000017",
     "x_accel_offset": 0.084937,
     "x_accel_scale": 0.993408,
     "y_accel_offset": 0.036470,
@@ -77,34 +98,9 @@
     "z_gyro_offset": -0.829935
 },
 {
-    "address": "0C:8C:DC:2E:3B:57",
-    "name": "chest",
-    "x_accel_offset": 0.040177,
-    "x_accel_scale": 0.998043,
-    "y_accel_offset": -0.036257,
-    "y_accel_scale": 0.984742,
-    "z_accel_offset": -0.022715,
-    "z_accel_scale": 0.996779,
-    "x_gyro_offset": 1.435097,
-    "y_gyro_offset": 0.954037,
-    "z_gyro_offset": 0.268559
-},
-{
-    "address": "0C:8C:DC:22:2A:0B",
-    "name": "dev",
-    "x_accel_offset": -0.005544,
-    "x_accel_scale": 1.002729,
-    "y_accel_offset": 0.250027,
-    "y_accel_scale": 1.000519,
-    "z_accel_offset": -0.138410,
-    "z_accel_scale": 0.991791,
-    "x_gyro_offset": 0.514377,
-    "y_gyro_offset": -2.079615,
-    "z_gyro_offset": 0.568501
-},
-{
     "address": "0C:8C:DC:2E:40:6C",
-    "name": "192730000400",
+    "name": "l_ankle",
+    "id": "192730000400",
     "x_accel_offset": -0.014535,
     "x_accel_scale": 0.990529,
     "y_accel_offset": -0.092365,
@@ -117,7 +113,8 @@
 },
 {
     "address": "0C:8C:DC:2E:3B:FF",
-    "name": "192730000054",
+    "name": "l_hip",
+    "id": "192730000054",
     "x_accel_offset": 0.043972,
     "x_accel_scale": 1.003193,
     "y_accel_offset": -0.027384,
@@ -130,7 +127,8 @@
 },
 {
     "address": "0C:8C:DC:2E:33:3D",
-    "name": "192630003270",
+    "name": "r_hip",
+    "id": "192630003270",
     "x_accel_offset": 0.001286,
     "x_accel_scale": 0.992172,
     "y_accel_offset": -0.020736,
@@ -142,8 +140,23 @@
     "z_gyro_offset": -1.552226
 },
 {
+    "address": "0C:8C:DC:22:2A:0B",
+    "name": "dev",
+    "id": "000000000000",
+    "x_accel_offset": -0.005544,
+    "x_accel_scale": 1.002729,
+    "y_accel_offset": 0.250027,
+    "y_accel_scale": 1.000519,
+    "z_accel_offset": -0.138410,
+    "z_accel_scale": 0.991791,
+    "x_gyro_offset": 0.514377,
+    "y_gyro_offset": -2.079615,
+    "z_gyro_offset": 0.568501
+},
+{
     "address": "00:AA:11:BB:22:CC",
     "name": "Default",
+    "id": "000000000000",
     "x_accel_offset": 0,
     "x_accel_scale": 1,
     "y_accel_offset": 0,
