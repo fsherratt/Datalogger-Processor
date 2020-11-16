@@ -36,6 +36,10 @@ function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
     walking = convertLabel('walking');
     stairD = convertLabel('stair_down');
     stairA = convertLabel('stair_up');
+    rampA = convertLabel('ramp_up');
+    rampD = convertLabel('ramp_down');
+    stop = convertLabel('stop');
+    tran = convertLabel('tran');
 
     % Find transition points
     transitionPoints = [];
@@ -43,21 +47,10 @@ function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
     for i = 2:length(label.label)-1
         currLabel = label.label(i);
         nextLabel = label.label(i+1);
-        
-%         if (currLabel == walking && nextLabel == stairD )
-%             transitionType(end+1) = convertLabel('tran_W_SD');
-%         elseif (currLabel == walking && nextLabel == stairA )
-%             transitionType(end+1) = convertLabel('tran_W_SA');
-%         elseif (currLabel == stairA  && nextLabel == walking )
-%             transitionType(end+1) = convertLabel('tran_SA_W');
-%         elseif (currLabel == stairD  && nextLabel == walking )
-%            transitionType(end+1) = convertLabel('tran_SD_W');
-%         else
-%             continue;
-%         end
 
+        % Disables transition labelling
         if (currLabel ~= nextLabel)
-            transitionType(end+1) = currLabel;
+            transitionType(end+1) = tran;
         else
             continue;
         end
@@ -101,7 +94,7 @@ function [output, stats] = splitTransitionData(dataTable, label, hs, debugPlots)
     splitStart = split_startIx(valid);
     splitEnd = split_endIx(valid);
     
-    % Add in transition label for step preceeding tansition point
+    % Add in transition label for step(s) preceeding tansition point
     startTransitionRow = hs(transitionHsIx - Config.TransitionSteps);
     endTransitionRow = hs(transitionHsIx);
     

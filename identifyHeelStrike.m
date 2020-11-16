@@ -21,22 +21,18 @@
 % Sep 2018; Last revision: 22-Jan-2020
 %}
 % Adjust label locations - Align to closest heel strike (measured in time)
-function [hsR, hsL] = identifyHeelStrike(data)
-    rAnkleRow = strcmp({data.friendly}, 'r_ankle');
-    lAnkleRow = strcmp({data.friendly}, 'l_ankle');
-
-    aMagR = vecnorm(data(rAnkleRow).accel,2,2);
-    aMagL = vecnorm(data(lAnkleRow).accel,2,2);
+function [hs, ps] = identifyHeelStrike(data, ankle_friendly_name)
+    hs = [];
+    ankleRow = strcmp({data.friendly}, ankle_friendly_name);
     
-    gyroYR = data(rAnkleRow).gyro(:, 3);
-    gyroYL = data(lAnkleRow).gyro(:, 3);
-
-    % Find heel strike
-    hsR = findHeelStrike(aMagR, gyroYR);
-    hsL = findHeelStrike(aMagL, gyroYL);
-end
-
-function [hs] = findHeelStrike(aMag, gyroY)
+    if ankleRow == 0
+        warning('No heel strikes fround for %s', ankle_friendly_name)
+        return
+    end
+    
+    aMag = vecnorm(data(ankleRow).accel, 2, 2);
+    gyroY = data(ankleRow).gyro(:, 2);
+     
     if (skewness(gyroY) < 0)
             gyroY = -gyroY;
     end
@@ -53,12 +49,14 @@ function [hs] = findHeelStrike(aMag, gyroY)
 
     % Each HS should be an accleration peak preceded by a leg swing
     hs = [];
+    ps = [];
     for i = 1:length(gyro_locs)
         tmp = accel_locs( accel_locs > gyro_locs(i) );
 
         if ~isempty(tmp)
             if ( tmp(1) - gyro_locs(i) ) < 100 % 1 second (100Hz) timeout
                 hs(end+1) = tmp(1);
+                ps(end+1) = gyro_locs(i);
             end
         end
     end

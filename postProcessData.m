@@ -20,12 +20,11 @@
 % Website: fsherratt.dev
 % Sep 2018; Last revision: 22-Jan-2020
 %}
-function [table] = postProcessData(data, label)
+function [table] = postProcessData(data, label, normalise)
     % Combine each sensors data into a single table
-
     % Table headings
     sensors = {data.friendly};
-    dataFields = {'accel_x', 'accel_y', 'accel_z', 'gyro_x', 'gyro_y', 'gyro_z', 'magn_x', 'magn_y', 'magnz'};
+    dataFields = {'accel_x', 'accel_y', 'accel_z', 'accel_mag', 'gyro_x', 'gyro_y', 'gyro_z', 'magn_x', 'magn_y', 'magn_z'};
     tableHeader = {'time'};
     for j = 1:length(sensors)
         for k = 1:length(dataFields)
@@ -37,7 +36,7 @@ function [table] = postProcessData(data, label)
     tableData = [data(1).time];
     for j = 1:length(data)
         dataRow = data(j);
-        tableData = [tableData, dataRow.accel, dataRow.gyro, dataRow.magn];
+        tableData = [tableData, dataRow.accel, dataRow.accel_mag, dataRow.gyro, dataRow.magn];
     end
 
     % Activity labels
@@ -60,4 +59,9 @@ function [table] = postProcessData(data, label)
 
     % Convert to data table
     table = array2table(tableData, 'VariableNames', tableHeader);
+    
+    % Normalize
+    if normalise
+        table = normalize(table, 'DataVariables', tableHeader(2:end-1));
+    end
 end

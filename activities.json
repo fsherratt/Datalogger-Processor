@@ -1,9 +1,11 @@
-{"walking": 0,
-"ramp_up": 0,
-"ramp_down": 0,
-"stair_up": 1,
-"stair_down": 2,
-"stop": 3,
+{
+"walking": 0,
+"ramp_up": 1,
+"ramp_down": 2,
+"stair_up": 3,
+"stair_down": 4,
+"stop": 5,
+"tran": 6,
 
 "tran_SA_W": 4,
 "tran_SD_W": 4,
